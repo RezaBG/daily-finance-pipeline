@@ -17,7 +17,7 @@ export class PersonController {
   findOne(@Param('id') id: string) {
     return this.personService.findOne(id);
   }
-  // TODO: implemet soft delete
+  // TODO: implement soft delete
   @Delete(':id')
   remove(@Param('id') id: string) {
     return this.personService.remove(id);

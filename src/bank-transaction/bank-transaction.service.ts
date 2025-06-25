@@ -28,7 +28,7 @@ export class BankTransactionService {
     });
     if (dto.account_iban == dto.counterparty_iban) {
       throw new ConflictException(
-        'You can not send money to the same bank acound ',
+        'You can not send money to the same bank account',
       );
     }
     if (!bankAccount) {

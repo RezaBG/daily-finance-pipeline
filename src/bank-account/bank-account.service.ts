@@ -25,9 +25,8 @@ export class BankAccountService {
     const IsIBANExist = await this.bankAccountRepository.findOne({
       where: { iban: dto.iban },
     });
-    console.log(IsIBANExist);
     if (IsIBANExist) {
-      throw new ConflictException('this IBAN already exist');
+      throw new ConflictException('this IBAN already exists');
     }
     const bankAccount = this.bankAccountRepository.create(dto);
     bankAccount.person = person;
