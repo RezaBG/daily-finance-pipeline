@@ -1,0 +1,16 @@
+services:
+  postgres:
+    image: postgres:14
+    restart: unless-stopped
+    env_file:
+      - .env.development
+    environment:
+      POSTGRES_USER: ${DB_USERNAME}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_NAME:-banking}
+    ports:
+      - '5432:5432'
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+volumes:
+  pgdata:
