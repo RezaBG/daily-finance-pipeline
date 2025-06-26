@@ -89,7 +89,7 @@ App runs on: <http://localhost:3000>
 
 ⸻
 
-📡 API Endpoints
+API Endpoints
 
 Person
 • GET /person – List all
@@ -131,6 +131,8 @@ Testing
 yarn test # Unit tests  
 yarn test:e2e # End-to-end  
 yarn test:cov # Coverage
+
+NOTE: for creation database we need .env.test file with same variables as .env.development
 
 ⸻
 
