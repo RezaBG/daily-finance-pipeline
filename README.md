@@ -166,4 +166,4 @@ Key Branches 1. main – Initial setup 2. feature/define-modules-and-entities 3.
 Usage Examples
 
 POSTMAN ENV LINK:
-https://app.getpostman.com/join-team?invite_code=b068277d63bee57eeaf1e49a37eacb6c1654d9fdb0417243f22f5bf2eeaac743&target_code=2019140d609ff7ab01e0e8424e986872
+[Postman Team Invite Link](https://app.getpostman.com/join-team?invite_code=b068277d63bee57eeaf1e49a37eacb6c1654d9fdb0417243f22f5bf2eeaac743&target_code=2019140d609ff7ab01e0e8424e986872)
