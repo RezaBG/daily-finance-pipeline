@@ -7,10 +7,11 @@ import { Friend } from '../friend/entities/friend.entity';
 
 import { Person } from '../person/entities/person.entity';
 import { seedPersons } from './person.seed';
+import { seedBankAccounts } from './bank-account.seed';
 // import { seedBankAccount } from './bank-account.seed';
 
 // import { seedAccounts } from './bank-account.seed';
-// import { seedFriends } from './friend.seed';
+import { seedFriends } from './friend.seed';
 
 dotenv.config();
 
@@ -30,11 +31,11 @@ async function seed() {
   await AppDataSource.initialize();
 
   const persons = await seedPersons(AppDataSource);
-
   console.log('List of user mock data: ', persons);
 
-  // await seedAccounts(AppDataSource, persons);
-  // await seedFriends(AppDataSource, persons);
+  await seedBankAccounts(AppDataSource);
+
+  await seedFriends(AppDataSource);
 
   await AppDataSource.destroy();
   console.log('✅ All seeds complete');
