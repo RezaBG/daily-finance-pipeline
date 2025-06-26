@@ -18,8 +18,7 @@ export class ProcessController {
   }
 
   @Post(':processId')
-  @HttpCode(204)
   async run(@Param('processId', ParseIntPipe) processId: number) {
-    await this.processService.runProcessesUpTo(processId);
+    return await this.processService.runProcessesUpTo(processId);
   }
 }

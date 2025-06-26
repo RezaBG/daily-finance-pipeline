@@ -30,20 +30,42 @@ export class ProcessService {
   ) {}
 
   // Entry point from webhook
-  async runProcessesUpTo(processId: number) {
+  async runProcessesUpTo(processId: number): Promise<{
+    balances?: any[];
+    netWorths?: any[];
+    borrowings?: any[];
+  }> {
+    const result: {
+      balances?: any[];
+      netWorths?: any[];
+      borrowings?: any[];
+    } = {};
+
     this.logger.log(`Running processes up to ID: ${processId}`);
-    if (processId >= 1) await this.runBalanceComputation();
-    if (processId >= 2) await this.runNetWorthComputation();
-    if (processId >= 3) await this.runBorrowingComputation();
+    if (processId >= 1) {
+      result.balances = await this.runBalanceComputation();
+    }
+
+    if (processId >= 2) {
+      result.netWorths = await this.runNetWorthComputation();
+    }
+
+    if (processId >= 3) {
+      result.borrowings = await this.runBorrowingComputation();
+    }
+    console.log(result);
     await this.processRunRepo.insert({ process_id: processId });
+    return result;
   }
 
   // Process 1: Compute balance per account
-  async runBalanceComputation() {
-    this.logger.log('Running balance computation...');
+  async runBalanceComputation(): Promise<any[]> {
     const accounts = await this.accountRepo.find({
       relations: ['transactions'],
     });
+
+    const updated: { iban: string; new_balance: number }[] = [];
+
     for (const account of accounts) {
       const total = account.transactions.reduce(
         (sum, tx) => sum + Number(tx.amount),
@@ -51,27 +73,38 @@ export class ProcessService {
       );
       account.current_balance = total;
       await this.accountRepo.save(account);
+      updated.push({
+        iban: account.iban,
+        new_balance: total,
+      });
     }
-    this.logger.log('Balances updated successfully.');
+
+    return updated;
   }
 
   // Process 2: Compute net worth per person
   async runNetWorthComputation() {
-    this.logger.log('Running net worth computation...');
     const people = await this.personRepo.find({ relations: ['accounts'] });
+    const result: { personId: string; name: string; net_worth: number }[] = [];
+
     for (const person of people) {
       const netWorth = person.accounts.reduce(
         (sum, acc) => sum + Number(acc.current_balance),
         0,
       );
-      this.logger.debug(`Net worth of ${person.name}: ${netWorth}`);
+
+      result.push({
+        personId: person.id,
+        name: person.name,
+        net_worth: netWorth,
+      });
     }
-    this.logger.log('Net worth calculation complete.');
+
+    return result;
   }
 
   // Process 3: Compute borrowing capacity
   async runBorrowingComputation() {
-    this.logger.log('Running borrowing computation...');
     const people = await this.personRepo.find({
       relations: [
         'accounts',
@@ -80,12 +113,20 @@ export class ProcessService {
         'friends.friend.accounts',
       ],
     });
+
+    const result: {
+      personId: string;
+      name: string;
+      can_borrow_up_to: number;
+    }[] = [];
+
     for (const person of people) {
       const myBalance = person.accounts.reduce(
         (sum, acc) => sum + Number(acc.current_balance),
         0,
       );
       let maxBorrow = 0;
+
       for (const friendLink of person.friends) {
         const friend = friendLink.friend;
         const friendBalance = friend.accounts.reduce(
@@ -96,9 +137,15 @@ export class ProcessService {
           maxBorrow += friendBalance - myBalance;
         }
       }
-      this.logger.log(`${person.name} can borrow up to: ${maxBorrow}`);
+
+      result.push({
+        personId: person.id,
+        name: person.name,
+        can_borrow_up_to: maxBorrow,
+      });
     }
-    this.logger.log('Borrowing capacity computation complete.');
+
+    return result;
   }
 
   async handleWebhook() {
