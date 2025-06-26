@@ -9,7 +9,7 @@ import { Friend } from '../friend/entities/friend.entity';
 import { CreateTransactionDto } from '../bank-transaction/dto/bank-transaction-request';
 import { readFile } from 'fs/promises';
 import { join } from 'path';
-import { BankTransactionService } from 'src/bank-transaction/bank-transaction.service';
+import { BankTransactionService } from '../bank-transaction/bank-transaction.service';
 
 @Injectable()
 export class ProcessService {

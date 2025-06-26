@@ -3,11 +3,11 @@ import { ProcessService } from './process.service';
 import { ProcessController } from './process.controller';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ProcessRun } from './entities/process.entity';
-import { BankAccount } from 'src/bank-account/entities/bank-account.entity';
-import { BankTransaction } from 'src/bank-transaction/entities/bank-transaction.entity';
-import { Person } from 'src/person/entities/person.entity';
-import { Friend } from 'src/friend/entities/friend.entity';
-import { BankTransactionService } from 'src/bank-transaction/bank-transaction.service';
+import { BankAccount } from '../bank-account/entities/bank-account.entity';
+import { BankTransaction } from '../bank-transaction/entities/bank-transaction.entity';
+import { Person } from '../person/entities/person.entity';
+import { Friend } from '../friend/entities/friend.entity';
+import { BankTransactionService } from '../bank-transaction/bank-transaction.service';
 
 @Module({
   imports: [
