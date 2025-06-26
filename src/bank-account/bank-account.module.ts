@@ -3,7 +3,7 @@ import { BankAccountService } from './bank-account.service';
 import { BankAccountController } from './bank-account.controller';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { BankAccount } from './entities/bank-account.entity';
-import { PersonModule } from 'src/person/person.module';
+import { PersonModule } from '../person/person.module';
 
 @Module({
   imports: [TypeOrmModule.forFeature([BankAccount]), PersonModule],

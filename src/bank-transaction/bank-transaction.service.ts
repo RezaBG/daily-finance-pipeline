@@ -7,7 +7,7 @@ import {
 import { InjectRepository } from '@nestjs/typeorm';
 import { BankTransaction } from './entities/bank-transaction.entity';
 import { DataSource, Repository } from 'typeorm';
-import { BankAccount } from 'src/bank-account/entities/bank-account.entity';
+import { BankAccount } from '../bank-account/entities/bank-account.entity';
 import { CreateTransactionDto } from './dto/bank-transaction-request';
 
 @Injectable()
