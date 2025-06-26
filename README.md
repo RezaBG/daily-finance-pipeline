@@ -1,98 +1,169 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
-</p>
+# Daily Finance Pipeline
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+A financial automation system built with NestJS and PostgreSQL, designed to manage users, bank accounts, transactions, and compute financial metrics like balances, net worth, and borrowing capacity.
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+⸻
 
-## Description
+Overview
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+This project provides:
+• Person Management – Create/delete users, manage relationships
+• Bank Accounts – IBAN-based account system with balance tracking
+• Transactions – Record and process bank transactions (single/bulk)
+• Friend Network – Track who can borrow from whom
+• Financial Processes – Automate balance, net worth & borrowing calculations
+• TODO(GremlinService): Although the application uses PostgreSQL with TypeORM for core data management, some relationships—especially bidirectional, recursive, or network-based ones like friendships—are far more efficient and expressive when modeled as graphs.
 
-## Project setup
+⸻
 
-```bash
-$ yarn install
-```
+Tech Stack
+• Framework: NestJS (TypeScript)
+• Database: PostgreSQL with TypeORM
+• Containerized: Docker + Docker Compose
+• Mock Data: Faker.js
+• Testing: Jest
+• Code Quality: ESLint, Prettier
 
-## Compile and run the project
+⸻
 
-```bash
-# development
-$ yarn run start
+Architecture
 
-# watch mode
-$ yarn run start:dev
+Key Entities
+• Person: UUID, name/email, has accounts & friends
+• BankAccount: IBAN, balance, linked to person
+• BankTransaction: UUID, amount, counterparty IBAN, linked to account
+• Friend: Links two persons, prevents self-friendship
+• ProcessRun: Logs nightly runs for balances, net worth, borrowing
 
-# production mode
-$ yarn run start:prod
-```
+⸻
 
-## Run tests
+Getting Started
 
-```bash
-# unit tests
-$ yarn run test
+1. Prerequisites
+   • Node.js v18+
+   • Yarn
+   • Docker + Docker Compose
 
-# e2e tests
-$ yarn run test:e2e
+2. Setup Instructions
 
-# test coverage
-$ yarn run test:cov
-```
+git clone <https://github.com/RezaBG/daily-finance-pipeline>
+cd daily-finance-pipeline
+yarn install
 
-## Deployment
+Create .env.development:
 
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
+NODE_ENV=
+DB_HOST=
+DB_PORT=
+DB_USERNAME=
+DB_PASSWORD=
+DB_NAME=
+PG_EMAIL=
+PG_PASSWORD=
 
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
+Start DB services:
 
-```bash
-$ yarn install -g @nestjs/mau
-$ mau deploy
-```
+docker-compose up -d
 
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
+Seed mock data:
 
-## Resources
+yarn run seed
 
-Check out a few resources that may come in handy when working with NestJS:
+⸻
 
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
+Running the App
 
-## Support
+## Dev mode
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+yarn start:dev
 
-## Stay in touch
+## Prod
 
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+yarn start:prod
 
-## License
+## Debug
 
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+yarn start:debug
+
+App runs on: <http://localhost:3000>
+
+⸻
+
+📡 API Endpoints
+
+Person
+• GET /person – List all
+• POST /person – Create
+• GET /person/:id – Get by ID
+• DELETE /person/:id – Delete
+• GET /person/borrowings/:personId – Borrowing capacity
+
+Bank Accounts
+• GET /bank-account
+• POST /bank-account
+• GET /bank-account/:iban
+• DELETE /bank-account/:iban
+
+Transactions
+• GET /bank-transaction
+• POST /bank-transaction
+• POST /bank-transaction/bulk
+
+Friends
+• GET /friend
+• POST /friend
+• DELETE /friend
+
+Processes
+• POST /process – Run all processes
+• POST /process/:processId – Run specific one (1–3)
+
+⸻
+
+Processes Explained 1. Balance – Sums all transactions → updates current_balance 2. Net Worth – Adds all account balances per person 3. Borrowing Capacity – Based on friend balances above current balance
+
+Webhook support for batch transactions via POST /process
+
+⸻
+
+Testing
+
+yarn test # Unit tests  
+yarn test:e2e # End-to-end  
+yarn test:cov # Coverage
+
+⸻
+
+Project Structure
+
+src/
+├── person/ # Person module
+├── bank-account/ # Account logic
+├── bank-transaction/ # Transactions
+├── friend/ # Friend relations
+├── process/ # Financial processes
+├── seed/ # Data generators
+└── data/ # Sample JSON
+
+⸻
+
+Scripts
+• yarn build – Compile
+• yarn lint – Lint with ESLint
+• yarn format – Format with Prettier
+• yarn seed – Populate DB
+
+PgAdmin available at <http://localhost:5050>
+
+⸻
+
+Development Workflow
+
+Key Branches 1. main – Initial setup 2. feature/define-modules-and-entities 3. feature/define-dtos 4. feature/mock-data
+
+⸻
+
+Usage Examples
+
+POSTMAN ENV LINK:
+https://app.getpostman.com/join-team?invite_code=b068277d63bee57eeaf1e49a37eacb6c1654d9fdb0417243f22f5bf2eeaac743&target_code=2019140d609ff7ab01e0e8424e986872
