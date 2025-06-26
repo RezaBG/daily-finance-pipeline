@@ -1,0 +1,102 @@
+[
+  {
+    "counterparty_iban": "DE0001",
+    "amount": -100.0,
+    "account_iban": "DE0002"
+  },
+  {
+    "counterparty_iban": "DE0002",
+    "amount": 100.0,
+    "account_iban": "DE0001"
+  },
+  {
+    "counterparty_iban": "DE0003",
+    "amount": -200.0,
+    "account_iban": "DE0001"
+  },
+  {
+    "counterparty_iban": "DE0001",
+    "amount": 200.0,
+    "account_iban": "DE0003"
+  },
+  {
+    "counterparty_iban": "DE0002",
+    "amount": -50.0,
+    "account_iban": "DE0003"
+  },
+  {
+    "counterparty_iban": "DE0003",
+    "amount": 50.0,
+    "account_iban": "DE0002"
+  },
+  {
+    "counterparty_iban": "DE0001",
+    "amount": -300.0,
+    "account_iban": "DE0002"
+  },
+  {
+    "counterparty_iban": "DE0002",
+    "amount": 300.0,
+    "account_iban": "DE0001"
+  },
+  {
+    "counterparty_iban": "DE0001",
+    "amount": -25.0,
+    "account_iban": "DE0003"
+  },
+  {
+    "counterparty_iban": "DE0003",
+    "amount": 25.0,
+    "account_iban": "DE0001"
+  },
+  {
+    "counterparty_iban": "DE0002",
+    "amount": -75.0,
+    "account_iban": "DE0001"
+  },
+  {
+    "counterparty_iban": "DE0001",
+    "amount": 75.0,
+    "account_iban": "DE0002"
+  },
+  {
+    "counterparty_iban": "DE0003",
+    "amount": -120.0,
+    "account_iban": "DE0002"
+  },
+  {
+    "counterparty_iban": "DE0002",
+    "amount": 120.0,
+    "account_iban": "DE0003"
+  },
+  {
+    "counterparty_iban": "DE0001",
+    "amount": -60.0,
+    "account_iban": "DE0003"
+  },
+  {
+    "counterparty_iban": "DE0003",
+    "amount": 60.0,
+    "account_iban": "DE0001"
+  },
+  {
+    "counterparty_iban": "DE0002",
+    "amount": -90.0,
+    "account_iban": "DE0003"
+  },
+  {
+    "counterparty_iban": "DE0003",
+    "amount": 90.0,
+    "account_iban": "DE0002"
+  },
+  {
+    "counterparty_iban": "DE0002",
+    "amount": -150.0,
+    "account_iban": "DE0001"
+  },
+  {
+    "counterparty_iban": "DE0001",
+    "amount": 150.0,
+    "account_iban": "DE0002"
+  }
+]
