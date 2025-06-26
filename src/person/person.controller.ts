@@ -1,4 +1,12 @@
-import { Body, Controller, Delete, Get, Param, Post } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  ParseUUIDPipe,
+  Post,
+} from '@nestjs/common';
 import { PersonService } from './person.service';
 import { CreatePersonDto } from './dto/person-create.dto';
 
@@ -21,5 +29,9 @@ export class PersonController {
   @Delete(':id')
   remove(@Param('id') id: string) {
     return this.personService.remove(id);
+  }
+  @Get('/borrowings/:personId')
+  async getBorrowing(@Param('personId', ParseUUIDPipe) personId: string) {
+    return this.personService.getBorrowingCapacity(personId);
   }
 }
