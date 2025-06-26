@@ -8,7 +8,7 @@ import { Friend } from '../friend/entities/friend.entity';
 import { Person } from '../person/entities/person.entity';
 import { seedPersons } from './person.seed';
 import { seedBankAccounts } from './bank-account.seed';
-// import { seedBankAccount } from './bank-account.seed';
+import { seedBankTransactions } from './bank-transactions.seed';
 
 // import { seedAccounts } from './bank-account.seed';
 import { seedFriends } from './friend.seed';
@@ -36,6 +36,7 @@ async function seed() {
   await seedBankAccounts(AppDataSource);
 
   await seedFriends(AppDataSource);
+  await seedBankTransactions(AppDataSource);
 
   await AppDataSource.destroy();
   console.log('✅ All seeds complete');
