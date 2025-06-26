@@ -7,6 +7,7 @@ import { BankAccount } from 'src/bank-account/entities/bank-account.entity';
 import { BankTransaction } from 'src/bank-transaction/entities/bank-transaction.entity';
 import { Person } from 'src/person/entities/person.entity';
 import { Friend } from 'src/friend/entities/friend.entity';
+import { BankTransactionService } from 'src/bank-transaction/bank-transaction.service';
 
 @Module({
   imports: [
@@ -19,6 +20,6 @@ import { Friend } from 'src/friend/entities/friend.entity';
     ]),
   ],
   controllers: [ProcessController],
-  providers: [ProcessService],
+  providers: [ProcessService, BankTransactionService],
 })
 export class ProcessModule {}

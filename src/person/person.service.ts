@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { ConflictException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Person } from './entities/person.entity';
 import { Repository } from 'typeorm';
@@ -12,6 +12,12 @@ export class PersonService {
   ) {}
 
   async create(dto: CreatePersonDto): Promise<Person> {
+    const existPerson = await this.personRepository.findOne({
+      where: { email: dto.email },
+    });
+    if (existPerson) {
+      throw new ConflictException('Dublicate Email');
+    }
     const person = this.personRepository.create(dto);
     return this.personRepository.save(person);
   }

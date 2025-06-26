@@ -20,7 +20,7 @@ export class BankAccountService {
   async create(dto: CreateBankAccountDto): Promise<BankAccount> {
     const person = await this.personService.findOne(dto.personId);
     if (!person) {
-      throw new NotFoundException('person not found');
+      throw new NotFoundException(`Person with ID ${dto.personId} not found.`);
     }
     const IsIBANExist = await this.bankAccountRepository.findOne({
       where: { iban: dto.iban },

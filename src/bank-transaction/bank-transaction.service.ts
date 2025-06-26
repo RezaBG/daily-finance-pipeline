@@ -65,11 +65,13 @@ export class BankTransactionService {
         const transaction = manager.create(BankTransaction, {
           amount: dto.amount,
           // TODO ADD: description: dto.description,
-          bankAccount: account,
+          account: account,
           counterparty_iban: dto.counterparty_iban,
+          created_at: new Date(), // I'll manage to to recive from user in future
         });
         transactionsToSave.push(transaction);
       }
+      console.log('==>>', transactionsToSave);
       return await manager.save(BankTransaction, transactionsToSave);
     });
   }

@@ -9,5 +9,6 @@ import { BankAccount } from 'src/bank-account/entities/bank-account.entity';
   imports: [TypeOrmModule.forFeature([BankTransaction, BankAccount])],
   controllers: [BankTransactionController],
   providers: [BankTransactionService],
+  exports: [BankTransactionService],
 })
 export class BankTransactionModule {}
