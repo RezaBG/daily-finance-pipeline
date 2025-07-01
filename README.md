@@ -193,4 +193,4 @@ PgAdmin available at [http://localhost:5050](http://localhost:5050)
 
 ## Usage Examples
 
-**POSTMAN ENV LINK:** [Postman Team Invite Link]
+**POSTMAN ENV LINK:** [Postman Team Invite Link](https://www.postman.com/volleymate-team-fastapi/daily-finance)
