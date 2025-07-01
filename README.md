@@ -2,56 +2,65 @@
 
 A financial automation system built with NestJS and PostgreSQL, designed to manage users, bank accounts, transactions, and compute financial metrics like balances, net worth, and borrowing capacity.
 
-⸻
+---
 
-Overview
+## Overview
 
 This project provides:
-• Person Management – Create/delete users, manage relationships
-• Bank Accounts – IBAN-based account system with balance tracking
-• Transactions – Record and process bank transactions (single/bulk)
-• Friend Network – Track who can borrow from whom
-• Financial Processes – Automate balance, net worth & borrowing calculations
-• TODO(GremlinService): Although the application uses PostgreSQL with TypeORM for core data management, some relationships—especially bidirectional, recursive, or network-based ones like friendships—are far more efficient and expressive when modeled as graphs.
 
-⸻
+- **Person Management**: Create/delete users, manage relationships
+- **Bank Accounts**: IBAN-based system with balance tracking
+- **Transactions**: Record and process bank transactions (single or bulk)
+- **Friend Network**: Track who can borrow from whom
+- **Financial Processes**: Automate balance, net worth, and borrowing calculations
 
-Tech Stack
-• Framework: NestJS (TypeScript)
-• Database: PostgreSQL with TypeORM
-• Containerized: Docker + Docker Compose
-• Mock Data: Faker.js
-• Testing: Jest
-• Code Quality: ESLint, Prettier
+> **Note:** Although the application uses PostgreSQL with TypeORM for core data management, some relationships—especially bidirectional, recursive, or network-based ones like friendships—are far more efficient and expressive when modeled as graphs.  
+> _TODO(GremlinService): Consider a graph DB for these relationships._
 
-⸻
+---
 
-Architecture
+## Tech Stack
 
-Key Entities
-• Person: UUID, name/email, has accounts & friends
-• BankAccount: IBAN, balance, linked to person
-• BankTransaction: UUID, amount, counterparty IBAN, linked to account
-• Friend: Links two persons, prevents self-friendship
-• ProcessRun: Logs nightly runs for balances, net worth, borrowing
+- **Framework**: NestJS (TypeScript)
+- **Database**: PostgreSQL with TypeORM
+- **Containerization**: Docker & Docker Compose
+- **Mock Data**: Faker.js
+- **Testing**: Jest
+- **Code Quality**: ESLint, Prettier
 
-⸻
+---
 
-Getting Started
+## Architecture
 
-1. Prerequisites
-   • Node.js v18+
-   • Yarn
-   • Docker + Docker Compose
+### Key Entities
 
-2. Setup Instructions
+- **Person**: UUID, name/email, has accounts & friends
+- **BankAccount**: IBAN, balance, linked to person
+- **BankTransaction**: UUID, amount, counterparty IBAN, linked to account
+- **Friend**: Links two persons, prevents self-friendship
+- **ProcessRun**: Logs nightly runs for balances, net worth, borrowing, etc.
 
-git clone <https://github.com/RezaBG/daily-finance-pipeline>
+---
+
+## Getting Started
+
+### Prerequisites
+
+- Node.js v18+
+- Yarn
+- Docker & Docker Compose
+
+### Setup Instructions
+
+```bash
+git clone https://github.com/RezaBG/daily-finance-pipeline
 cd daily-finance-pipeline
 yarn install
+```
 
-Create .env.development:
+Create `.env.development` with the following variables:
 
+```bash
 NODE_ENV=
 DB_HOST=
 DB_PORT=
@@ -60,112 +69,130 @@ DB_PASSWORD=
 DB_NAME=
 PG_EMAIL=
 PG_PASSWORD=
+```
 
-Start DB services:
+Start database services:
 
+````
+
+```bash
 docker-compose up -d
+````
 
 Seed mock data:
 
+```bash
 yarn run seed
+```
 
-⸻
+---
 
-Running the App
+## Running the App
 
-## Dev mode
+- **Development:**  
+  `yarn start:dev`
+- **Production:**  
+  `yarn start:prod`
+- **Debug:**  
+  `yarn start:debug`
 
-yarn start:dev
+App runs at: [http://localhost:3000](http://localhost:3000)
 
-## Prod
+---
 
-yarn start:prod
+## API Endpoints
 
-## Debug
+### Person
 
-yarn start:debug
+- `GET /person` – List all persons
+- `POST /person` – Create a person
+- `GET /person/:id` – Get person by ID
+- `DELETE /person/:id` – Delete person
+- `GET /person/borrowings/:personId` – Get borrowing capacity
 
-App runs on: <http://localhost:3000>
+### Bank Accounts
 
-⸻
+- `GET /bank-account`
+- `POST /bank-account`
+- `GET /bank-account/:iban`
+- `DELETE /bank-account/:iban`
 
-API Endpoints
+### Transactions
 
-Person
-• GET /person – List all
-• POST /person – Create
-• GET /person/:id – Get by ID
-• DELETE /person/:id – Delete
-• GET /person/borrowings/:personId – Borrowing capacity
+- `GET /bank-transaction`
+- `POST /bank-transaction`
+- `POST /bank-transaction/bulk`
 
-Bank Accounts
-• GET /bank-account
-• POST /bank-account
-• GET /bank-account/:iban
-• DELETE /bank-account/:iban
+### Friends
 
-Transactions
-• GET /bank-transaction
-• POST /bank-transaction
-• POST /bank-transaction/bulk
+- `GET /friend`
+- `POST /friend`
+- `DELETE /friend`
 
-Friends
-• GET /friend
-• POST /friend
-• DELETE /friend
+### Processes
 
-Processes
-• POST /process – Run all processes
-• POST /process/:processId – Run specific one (1–3)
+- `POST /process` – Run all processes
+- `POST /process/:processId` – Run specific process (IDs 1–3)
 
-⸻
+---
 
-Processes Explained 1. Balance – Sums all transactions → updates current_balance 2. Net Worth – Adds all account balances per person 3. Borrowing Capacity – Based on friend balances above current balance
+## Financial Processes
 
-Webhook support for batch transactions via POST /process
+1. **Balance:** Sums all transactions and updates `current_balance`
+2. **Net Worth:** Adds all account balances per person
+3. **Borrowing Capacity:** Based on friend balances above current balance
 
-⸻
+> _Webhook support for batch transactions via `POST /process`_
 
-Testing
+---
 
-yarn test # Unit tests  
-yarn test:e2e # End-to-end  
-yarn test:cov # Coverage
+## Testing
 
-NOTE: for creation database we need .env.test file with same variables as .env.development
+- `yarn test` – Unit tests
+- `yarn test:e2e` – End-to-end tests
+- `yarn test:cov` – Coverage
 
-⸻
+> **Note:** For test database creation, you need a `.env.test` file with the same variables as `.env.development`.
 
-Project Structure
+---
 
+## Project Structure
+
+```bash
 src/
-├── person/ # Person module
-├── bank-account/ # Account logic
-├── bank-transaction/ # Transactions
-├── friend/ # Friend relations
-├── process/ # Financial processes
-├── seed/ # Data generators
-└── data/ # Sample JSON
+├── person/            # Person module
+├── bank-account/      # Account logic
+├── bank-transaction/  # Transactions
+├── friend/            # Friend relations
+├── process/           # Financial processes
+├── seed/              # Data generators
+└── data/              # Sample JSON
+```
 
-⸻
+---
 
-Scripts
-• yarn build – Compile
-• yarn lint – Lint with ESLint
-• yarn format – Format with Prettier
-• yarn seed – Populate DB
+## Scripts
 
-PgAdmin available at <http://localhost:5050>
+- `yarn build` – Compile project
+- `yarn lint` – Lint with ESLint
+- `yarn format` – Format with Prettier
+- `yarn seed` – Populate DB
 
-⸻
+PgAdmin available at [http://localhost:5050](http://localhost:5050)
 
-Development Workflow
+---
 
-Key Branches 1. main – Initial setup 2. feature/define-modules-and-entities 3. feature/define-dtos 4. feature/mock-data
+## Development Workflow
 
-⸻
+### Key Branches
 
-Usage Examples
+1. `main` – Initial setup
+2. `feature/define-modules-and-entities`
+3. `feature/define-dtos`
+4. `feature/mock-data`
 
-POSTMAN ENV LINK:
-[Postman Team Invite Link](https://app.getpostman.com/join-team?invite_code=b068277d63bee57eeaf1e49a37eacb6c1654d9fdb0417243f22f5bf2eeaac743&target_code=2019140d609ff7ab01e0e8424e986872)
+---
+
+## Usage Examples
+
+**POSTMAN ENV LINK:** [Postman Team Invite Link]
