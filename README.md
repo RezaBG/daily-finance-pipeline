@@ -73,11 +73,9 @@ PG_PASSWORD=
 
 Start database services:
 
-````
-
 ```bash
 docker-compose up -d
-````
+```
 
 Seed mock data:
 
