@@ -1,6 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { DataSource, Repository } from 'typeorm';
+import { DataSource, MoreThan, Repository } from 'typeorm';
 import { ProcessRun } from './entities/process.entity';
 import { BankAccount } from '../bank-account/entities/bank-account.entity';
 import { BankTransaction } from '../bank-transaction/entities/bank-transaction.entity';
@@ -66,32 +66,65 @@ export class ProcessService {
 
   // Process 1: Compute balance per account
   async runBalanceComputation(): Promise<BalanceComputationResult[]> {
-    return await this.accountRepo.manager.transaction(async (manager) => {
-      const accounts = await manager.find(BankAccount, {
-        relations: ['transactions', 'person'],
-      });
+    this.logger.log('Starting balance computation procces');
+    const start = Date.now();
+    const now = new Date();
 
-      const updated: BalanceComputationResult[] = [];
+    try {
+      return await this.accountRepo.manager.transaction(async (manager) => {
+        const accounts = await manager.find(BankAccount, {
+          relations: ['person'],
+        });
 
-      for (const account of accounts) {
-        const total = account.transactions.reduce(
-          (sum, tx) => sum + Number(tx.amount),
-          0,
+        this.logger.log(`Fetch ${accounts.length} accounts from DB`);
+
+        const updated: BalanceComputationResult[] = [];
+
+        for (const account of accounts) {
+          const newTransactions = await manager.find(BankTransaction, {
+            where: {
+              account: { iban: account.iban },
+              created_at: MoreThan(
+                account.last_balance_computed_at || new Date(0),
+              ),
+            },
+          });
+          if (newTransactions.length === 0) {
+            continue; // nothing to do for this account
+          }
+
+          const newTotal = newTransactions.reduce(
+            (sum, tx) => sum + Number(tx.amount),
+            0,
+          );
+
+          account.current_balance = Number(account.current_balance) + newTotal;
+          account.last_balance_computed_at = now;
+
+          updated.push({
+            iban: account.iban,
+            person: account.person,
+            new_balance: Number(account.current_balance.toFixed(2)),
+          });
+        }
+
+        await manager.save(accounts);
+
+        this.logger.log(`Updated balances for ${updated.length} accounts`);
+        const duration = Date.now() - start;
+        this.logger.log(
+          `Incremental balance computation finished in ${duration}ms`,
         );
 
-        account.current_balance = total;
-
-        updated.push({
-          iban: account.iban,
-          person: account.person,
-          new_balance: total,
-        });
-      }
-      await manager.save(accounts);
-
-      this.logger.log(`Update balance for ${accounts.length} accounts`);
-      return updated;
-    });
+        return updated;
+      });
+    } catch (error) {
+      this.logger.log(
+        'Incremental balance computation failed',
+        error instanceof Error ? error.stack : String(error),
+      );
+      throw error;
+    }
   }
 
   // Process 2: Compute net worth per person

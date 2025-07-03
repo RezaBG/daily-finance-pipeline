@@ -10,6 +10,9 @@ export class BankAccount {
   @Column({ type: 'numeric', precision: 18, scale: 2, default: 0 })
   current_balance: number;
 
+  @Column({ type: 'timestamp', nullable: true })
+  last_balance_computed_at: Date;
+
   @ManyToOne(() => Person, (person) => person.accounts, { onDelete: 'CASCADE' })
   person: Person;
 
