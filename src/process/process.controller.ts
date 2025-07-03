@@ -6,6 +6,7 @@ import {
   Post,
 } from '@nestjs/common';
 import { ProcessService } from './process.service';
+import { ProcessRunResult } from './process.service';
 
 @Controller('process')
 export class ProcessController {
@@ -18,7 +19,9 @@ export class ProcessController {
   }
 
   @Post(':processId')
-  async run(@Param('processId', ParseIntPipe) processId: number) {
+  async run(
+    @Param('processId', ParseIntPipe) processId: number,
+  ): Promise<ProcessRunResult> {
     return await this.processService.runProcessesUpTo(processId);
   }
 }

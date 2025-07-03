@@ -1,6 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { DataSource, Repository } from 'typeorm';
+import { DataSource, MoreThan, Repository } from 'typeorm';
 import { ProcessRun } from './entities/process.entity';
 import { BankAccount } from '../bank-account/entities/bank-account.entity';
 import { BankTransaction } from '../bank-transaction/entities/bank-transaction.entity';
@@ -10,6 +10,36 @@ import { CreateTransactionDto } from '../bank-transaction/dto/bank-transaction-r
 import { readFile } from 'fs/promises';
 import { join } from 'path';
 import { BankTransactionService } from '../bank-transaction/bank-transaction.service';
+
+interface BalanceComputationResult {
+  iban: string;
+  new_balance: number;
+  person: Person;
+}
+
+interface BalanceComputationSummary {
+  total_accounts: number;
+  processed_accounts: number;
+  balances: BalanceComputationResult[];
+}
+
+export interface ProcessRunResult {
+  balances?: BalanceComputationSummary;
+  netWorths?: NetWorthResult[];
+  borrowings?: BorrowingResult[];
+}
+
+interface NetWorthResult {
+  personId: string;
+  name: string;
+  net_worth: number;
+}
+
+interface BorrowingResult {
+  personId: string;
+  name: string;
+  can_borrow_up_to: number;
+}
 
 @Injectable()
 export class ProcessService {
@@ -30,16 +60,8 @@ export class ProcessService {
   ) {}
 
   // Entry point from webhook
-  async runProcessesUpTo(processId: number): Promise<{
-    balances?: any[];
-    netWorths?: any[];
-    borrowings?: any[];
-  }> {
-    const result: {
-      balances?: any[];
-      netWorths?: any[];
-      borrowings?: any[];
-    } = {};
+  async runProcessesUpTo(processId: number): Promise<ProcessRunResult> {
+    const result: ProcessRunResult = {};
 
     this.logger.log(`Running processes up to ID: ${processId}`);
     if (processId >= 1) {
@@ -59,31 +81,76 @@ export class ProcessService {
   }
 
   // Process 1: Compute balance per account
-  async runBalanceComputation(): Promise<any[]> {
-    const accounts = await this.accountRepo.find({
-      relations: ['transactions'],
-    });
+  async runBalanceComputation(): Promise<BalanceComputationSummary> {
+    this.logger.log('Starting balance computation procces');
+    const start = Date.now();
+    const now = new Date();
 
-    const updated: { iban: string; new_balance: number }[] = [];
+    try {
+      return await this.accountRepo.manager.transaction(async (manager) => {
+        const accounts = await manager.find(BankAccount, {
+          relations: ['person'],
+        });
 
-    for (const account of accounts) {
-      const total = account.transactions.reduce(
-        (sum, tx) => sum + Number(tx.amount),
-        0,
-      );
-      account.current_balance = total;
-      await this.accountRepo.save(account);
-      updated.push({
-        iban: account.iban,
-        new_balance: total,
+        this.logger.log(`Fetch ${accounts.length} accounts from DB`);
+
+        const updated: BalanceComputationResult[] = [];
+
+        for (const account of accounts) {
+          const newTransactions = await manager.find(BankTransaction, {
+            where: {
+              account: { iban: account.iban },
+              created_at: MoreThan(
+                account.last_balance_computed_at || new Date(0),
+              ),
+            },
+          });
+          if (newTransactions.length === 0) {
+            continue; // nothing to do for this account
+          }
+
+          const newTotal = newTransactions.reduce(
+            (sum, tx) => sum + Number(tx.amount),
+            0,
+          );
+
+          account.current_balance = Number(account.current_balance) + newTotal;
+          account.last_balance_computed_at = now;
+
+          updated.push({
+            iban: account.iban,
+            person: account.person,
+            new_balance: Number(account.current_balance.toFixed(2)),
+          });
+        }
+
+        await manager.save(accounts);
+
+        this.logger.log(`Updated balances for ${updated.length} accounts`);
+        const duration = Date.now() - start;
+        this.logger.log(
+          `Incremental balance computation finished in ${duration}ms`,
+        );
+
+        return {
+          total_accounts: accounts.length,
+          processed_accounts: updated.length,
+          balances: updated,
+        };
       });
+    } catch (error) {
+      this.logger.log(
+        'Incremental balance computation failed',
+        error instanceof Error ? error.stack : String(error),
+      );
+      throw error;
     }
-
-    return updated;
   }
 
   // Process 2: Compute net worth per person
-  async runNetWorthComputation() {
+  async runNetWorthComputation(): Promise<
+    { personId: string; name: string; net_worth: number }[]
+  > {
     const people = await this.personRepo.find({ relations: ['accounts'] });
     const result: { personId: string; name: string; net_worth: number }[] = [];
 
@@ -113,6 +180,8 @@ export class ProcessService {
         'friends.friend.accounts',
       ],
     });
+
+    // console.log(people);
 
     const result: {
       personId: string;

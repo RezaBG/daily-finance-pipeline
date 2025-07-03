@@ -47,6 +47,7 @@ export class BankTransactionService {
     return this.bankTransactionRepository.save(BankTransaction);
   }
 
+  // ACID - ATOMIC
   async createBulk(dtos: CreateTransactionDto[]): Promise<BankTransaction[]> {
     if (!dtos || dtos.length === 0) {
       throw new BadRequestException('No transactions provided');
@@ -62,6 +63,7 @@ export class BankTransactionService {
             `BankAccount not found: ${dto.account_iban}`,
           );
         }
+        //TODO:  check iban counter party
         const transaction = manager.create(BankTransaction, {
           amount: dto.amount,
           // TODO ADD: description: dto.description,
