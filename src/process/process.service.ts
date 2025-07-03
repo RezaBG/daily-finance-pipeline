@@ -59,12 +59,18 @@ export class ProcessService {
   }
 
   // Process 1: Compute balance per account
-  async runBalanceComputation(): Promise<any[]> {
+  async runBalanceComputation(): Promise<
+    {
+      iban: string;
+      person: Person;
+      new_balance: number;
+    }[]
+  > {
     const accounts = await this.accountRepo.find({
-      relations: ['transactions'],
+      relations: ['transactions', 'person'],
     });
 
-    const updated: { iban: string; new_balance: number }[] = [];
+    const updated: { iban: string; new_balance: number; person: any }[] = [];
 
     for (const account of accounts) {
       const total = account.transactions.reduce(
@@ -72,18 +78,22 @@ export class ProcessService {
         0,
       );
       account.current_balance = total;
-      await this.accountRepo.save(account);
       updated.push({
         iban: account.iban,
+        person: account.person,
         new_balance: total,
       });
     }
+    await this.accountRepo.save(accounts);
 
+    this.logger.log(`Update balance for ${accounts.length} accounts`);
     return updated;
   }
 
   // Process 2: Compute net worth per person
-  async runNetWorthComputation() {
+  async runNetWorthComputation(): Promise<
+    { personId: string; name: string; net_worth: number }[]
+  > {
     const people = await this.personRepo.find({ relations: ['accounts'] });
     const result: { personId: string; name: string; net_worth: number }[] = [];
 
@@ -113,6 +123,8 @@ export class ProcessService {
         'friends.friend.accounts',
       ],
     });
+
+    // console.log(people);
 
     const result: {
       personId: string;
