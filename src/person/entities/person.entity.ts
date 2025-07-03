@@ -20,5 +20,5 @@ export class Person {
   friends: Friend[];
 
   @OneToMany(() => Friend, (friend) => friend.friend)
-  friendOf: Friend[];
+  friendOf: Friend[]; // nested
 }

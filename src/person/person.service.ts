@@ -15,6 +15,7 @@ export class PersonService {
     private personRepository: Repository<Person>,
   ) {}
 
+  // create
   async create(dto: CreatePersonDto): Promise<Person> {
     const existPerson = await this.personRepository.findOne({
       where: { email: dto.email },
@@ -25,17 +26,21 @@ export class PersonService {
     const person = this.personRepository.create(dto);
     return this.personRepository.save(person);
   }
+
   findAll(): Promise<Person[]> {
     return this.personRepository.find({
       relations: ['accounts', 'friends', 'friendOf'],
     });
   }
+
   findOne(id: string): Promise<Person | null> {
     return this.personRepository.findOne({
       where: { id },
       relations: ['accounts', 'friends', 'friendOf'],
     });
   }
+
+  // remove
   async remove(id: string): Promise<void> {
     await this.personRepository.delete(id);
   }
