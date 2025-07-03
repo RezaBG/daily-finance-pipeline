@@ -11,6 +11,12 @@ import { readFile } from 'fs/promises';
 import { join } from 'path';
 import { BankTransactionService } from '../bank-transaction/bank-transaction.service';
 
+interface BalanceComputationResult {
+  iban: string;
+  new_balance: number;
+  person: Person;
+}
+
 @Injectable()
 export class ProcessService {
   private readonly logger = new Logger(ProcessService.name);
@@ -59,35 +65,33 @@ export class ProcessService {
   }
 
   // Process 1: Compute balance per account
-  async runBalanceComputation(): Promise<
-    {
-      iban: string;
-      person: Person;
-      new_balance: number;
-    }[]
-  > {
-    const accounts = await this.accountRepo.find({
-      relations: ['transactions', 'person'],
-    });
-
-    const updated: { iban: string; new_balance: number; person: any }[] = [];
-
-    for (const account of accounts) {
-      const total = account.transactions.reduce(
-        (sum, tx) => sum + Number(tx.amount),
-        0,
-      );
-      account.current_balance = total;
-      updated.push({
-        iban: account.iban,
-        person: account.person,
-        new_balance: total,
+  async runBalanceComputation(): Promise<BalanceComputationResult[]> {
+    return await this.accountRepo.manager.transaction(async (manager) => {
+      const accounts = await manager.find(BankAccount, {
+        relations: ['transactions', 'person'],
       });
-    }
-    await this.accountRepo.save(accounts);
 
-    this.logger.log(`Update balance for ${accounts.length} accounts`);
-    return updated;
+      const updated: BalanceComputationResult[] = [];
+
+      for (const account of accounts) {
+        const total = account.transactions.reduce(
+          (sum, tx) => sum + Number(tx.amount),
+          0,
+        );
+
+        account.current_balance = total;
+
+        updated.push({
+          iban: account.iban,
+          person: account.person,
+          new_balance: total,
+        });
+      }
+      await manager.save(accounts);
+
+      this.logger.log(`Update balance for ${accounts.length} accounts`);
+      return updated;
+    });
   }
 
   // Process 2: Compute net worth per person
