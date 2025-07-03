@@ -17,6 +17,30 @@ interface BalanceComputationResult {
   person: Person;
 }
 
+interface BalanceComputationSummary {
+  total_accounts: number;
+  processed_accounts: number;
+  balances: BalanceComputationResult[];
+}
+
+export interface ProcessRunResult {
+  balances?: BalanceComputationSummary;
+  netWorths?: NetWorthResult[];
+  borrowings?: BorrowingResult[];
+}
+
+interface NetWorthResult {
+  personId: string;
+  name: string;
+  net_worth: number;
+}
+
+interface BorrowingResult {
+  personId: string;
+  name: string;
+  can_borrow_up_to: number;
+}
+
 @Injectable()
 export class ProcessService {
   private readonly logger = new Logger(ProcessService.name);
@@ -36,16 +60,8 @@ export class ProcessService {
   ) {}
 
   // Entry point from webhook
-  async runProcessesUpTo(processId: number): Promise<{
-    balances?: any[];
-    netWorths?: any[];
-    borrowings?: any[];
-  }> {
-    const result: {
-      balances?: any[];
-      netWorths?: any[];
-      borrowings?: any[];
-    } = {};
+  async runProcessesUpTo(processId: number): Promise<ProcessRunResult> {
+    const result: ProcessRunResult = {};
 
     this.logger.log(`Running processes up to ID: ${processId}`);
     if (processId >= 1) {
@@ -65,7 +81,7 @@ export class ProcessService {
   }
 
   // Process 1: Compute balance per account
-  async runBalanceComputation(): Promise<BalanceComputationResult[]> {
+  async runBalanceComputation(): Promise<BalanceComputationSummary> {
     this.logger.log('Starting balance computation procces');
     const start = Date.now();
     const now = new Date();
@@ -116,7 +132,11 @@ export class ProcessService {
           `Incremental balance computation finished in ${duration}ms`,
         );
 
-        return updated;
+        return {
+          total_accounts: accounts.length,
+          processed_accounts: updated.length,
+          balances: updated,
+        };
       });
     } catch (error) {
       this.logger.log(
